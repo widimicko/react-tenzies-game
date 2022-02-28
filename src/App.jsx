@@ -7,22 +7,37 @@ import Die from './components/Die';
 function App() {
   const [dice, setDice] = useState(allNewDice())
 
-  console.log(dice)
+  function generateNewDie() {
+    return {
+      id: nanoid(),
+      value: Math.ceil(Math.random() * 6),
+      isHeld: false
+    }
+  }
 
   function allNewDice() {
     const dices = []
     for (let i = 0; i < 10; i++) {
-      dices.push({
-        id: nanoid(),
-        value: Math.ceil(Math.random() * 6),
-        isHeld: false
-      })
+      dices.push(generateNewDie())
     }
     return dices
   }
 
   function rollDice() {
-    setDice(allNewDice())
+    setDice(prevDice => prevDice.map(die => {
+      return die.isHeld ?
+        die :
+        generateNewDie()
+
+    }))
+  }
+
+  function holdDice(id) {
+    setDice(prevDice => prevDice.map(die => {
+      return die.id === id ?
+        {...die, isHeld: !die.isHeld} :
+        die 
+    }))
   }
 
   return (
@@ -31,7 +46,7 @@ function App() {
         <div className='grid grid-cols-5 gap-4'>
           {
             dice.map((die) => {
-              return <Die key={die.id} value={die.value} isHeld={die.isHeld} />
+              return <Die key={die.id} value={die.value} isHeld={die.isHeld} holdDice={() => holdDice(die.id)} />
             })
           }
         </div>
