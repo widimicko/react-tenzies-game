@@ -1,11 +1,13 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { nanoid } from 'nanoid'
+import Confetti from 'react-confetti'
 
 import Die from './components/Die';
 
 function App() {
   const [dice, setDice] = useState(allNewDice())
+  const [tenzies, setTenzies] = useState(false)
 
   function generateNewDie() {
     return {
@@ -23,15 +25,6 @@ function App() {
     return dices
   }
 
-  function rollDice() {
-    setDice(prevDice => prevDice.map(die => {
-      return die.isHeld ?
-        die :
-        generateNewDie()
-
-    }))
-  }
-
   function holdDice(id) {
     setDice(prevDice => prevDice.map(die => {
       return die.id === id ?
@@ -40,9 +33,39 @@ function App() {
     }))
   }
 
+  useEffect(() => {
+    const allDieHeld = dice.every(die => die.isHeld)
+    const firstDieValue = dice[0].value
+    const allDieSameValue = dice.every(die => die.value === firstDieValue)
+
+    if (allDieHeld && allDieSameValue) {
+      setTenzies(true)
+    }
+  }, [dice])
+
+  function handleButtonClick() {
+    if (!tenzies) {
+      setDice(prevDice => prevDice.map(die => {
+        return die.isHeld ?
+          die :
+          generateNewDie()
+  
+      }))
+    } else {
+      setTenzies(false)
+      setDice(allNewDice( ))
+    }
+    
+  }
+
   return (
     <div className="h-screen w-screen bg-[#0B2434] p-5">
       <main className="bg-[#F5F5F5] h-[400px] max-w-[800px] rounded-lg p-5 flex flex-col justify-around items-center">
+        {tenzies && <Confetti />}
+        <div className="text-center">
+          <h1 className='font-bold text-2xl'>Tenzies</h1>
+          <p>Roll until dice are the same. Click each die to freeze it at its current value between rolls.</p>
+        </div>
         <div className='grid grid-cols-5 gap-4'>
           {
             dice.map((die) => {
@@ -50,7 +73,9 @@ function App() {
             })
           }
         </div>
-        <button onClick={rollDice} className="h-9 w-20 text-lg bg-[#5035FF] rounded-lg text-white mt-5 active:shadow-2xl active:bg-[#170975]">Roll</button>
+        <button onClick={handleButtonClick} className="h-9 w-28 text-lg bg-[#5035FF] rounded-lg text-white mt-5 active:shadow-2xl active:bg-[#170975]">
+          {tenzies ? 'New Game' : 'Roll'}
+        </button>
       </main>
     </div>
   );
