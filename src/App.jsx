@@ -1,3 +1,9 @@
+/* // Todo:
+  ? put real dots on the dice
+  ? track number of rolls
+  ? track the time it took to win
+  ? save your best time to localStorage
+*/
 import React, { useEffect, useState } from 'react'
 
 import { nanoid } from 'nanoid'
